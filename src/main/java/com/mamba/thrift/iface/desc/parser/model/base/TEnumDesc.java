@@ -19,10 +19,11 @@ public class TEnumDesc {
 
     private final List<Enumeration> enums;
 
-    public TEnumDesc(Class<? extends TEnum> enumClass) throws Exception {
-        this.namespace = enumClass.getPackage().getName();
+    public TEnumDesc(Class<? extends TEnum> enumClass) {
+        Package pkg = enumClass.getPackage();
+        this.namespace = (pkg == null) ? null : pkg.getName();
         this.name = enumClass.getSimpleName();
-        this.enums = Collections.unmodifiableList(Arrays.stream((TEnum[]) enumClass.getMethod("values").invoke(enumClass)).map(Enumeration::new).collect(Collectors.toList()));
+        this.enums = Collections.unmodifiableList(Arrays.stream(getValues(enumClass)).map(Enumeration::new).collect(Collectors.toList()));
     }
 
     @Override
@@ -31,6 +32,14 @@ public class TEnumDesc {
             return String.format("{\"name\":\"%s\",\"enums\":%s}", this.getName(), this.getEnums());
         } else {
             return String.format("{\"namespace\":\"%s\",\"name\":\"%s\",\"enums\":%s}", this.getNamespace(), this.getName(), this.getEnums());
+        }
+    }
+
+    private static TEnum[] getValues(Class<? extends TEnum> enumClass) {
+        try {
+            return (TEnum[]) enumClass.getMethod("values").invoke(enumClass);
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed invoke method 'values' of '" + enumClass.getName() + "': " + e.getMessage(), e);
         }
     }
 

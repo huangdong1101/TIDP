@@ -1,10 +1,12 @@
 package com.mamba.thrift.iface.desc.parser.model.type;
 
-import com.mamba.thrift.iface.desc.parser.util.function.Function;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import org.apache.thrift.TBase;
 import org.apache.thrift.meta_data.FieldValueMetaData;
 import org.apache.thrift.meta_data.MapMetaData;
+
+import java.util.function.BiFunction;
 
 @Getter
 @EqualsAndHashCode
@@ -14,8 +16,8 @@ public class TMapTypeDesc<K extends TDataTypeDesc, V extends TDataTypeDesc> exte
 
     private final V value;
 
-    public static TMapTypeDesc create(MapMetaData metaData, Function<FieldValueMetaData, TDataTypeDesc> function) throws Exception {
-        return new TMapTypeDesc(metaData, function.apply(metaData.keyMetaData), function.apply(metaData.valueMetaData));
+    public static TMapTypeDesc create(Class<? extends TBase> structClass, MapMetaData metaData, BiFunction<Class<? extends TBase>, FieldValueMetaData, TDataTypeDesc> function) {
+        return new TMapTypeDesc(metaData, function.apply(structClass, metaData.keyMetaData), function.apply(structClass, metaData.valueMetaData));
     }
 
     private TMapTypeDesc(MapMetaData metaData, K key, V value) {

@@ -11,8 +11,12 @@ public class TDataTypeDesc {
 
     private final String type;
 
+    public TDataTypeDesc(TType type) {
+        this.type = type.name().toLowerCase();
+    }
+
     public TDataTypeDesc(FieldValueMetaData metaData) {
-        this.type = TType.find(metaData.type, metaData.isBinary()).name().toLowerCase();
+        this(TType.find(metaData.type, metaData.isBinary()));
     }
 
     @Override

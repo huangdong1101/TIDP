@@ -5,7 +5,6 @@ import lombok.Getter;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 @Getter
 @EqualsAndHashCode
@@ -17,13 +16,10 @@ public class TServiceDesc {
 
     private final List<TMethodDesc> methods;
 
-    public TServiceDesc(String namespace, String service) {
-        this(namespace, service, null);
-    }
-
-    public TServiceDesc(String namespace, String service, List<TMethodDesc> methods) {
-        this.namespace = namespace;
-        this.service = Objects.requireNonNull(service);
+    public TServiceDesc(Class<?> structClass, List<TMethodDesc> methods) {
+        Package pkg = structClass.getPackage();
+        this.namespace = (pkg == null) ? null : pkg.getName();
+        this.service = structClass.getSimpleName();
         this.methods = (methods == null || methods.isEmpty()) ? Collections.emptyList() : Collections.unmodifiableList(methods);
     }
 

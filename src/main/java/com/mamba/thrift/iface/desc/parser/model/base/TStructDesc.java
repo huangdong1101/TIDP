@@ -19,9 +19,10 @@ public class TStructDesc<T extends TFieldDesc> {
     private final List<T> fields;
 
     public TStructDesc(Class<? extends TBase> structClass, List<T> fields) {
-        this.namespace = structClass.getPackage().getName();
+        Package pkg = structClass.getPackage();
+        this.namespace = (pkg == null) ? null : pkg.getName();
         this.name = structClass.getSimpleName();
-        this.fields = (fields == null || fields.isEmpty()) ? Collections.emptyList() : Collections.unmodifiableList(fields);
+        this.fields = (fields == null) ? Collections.emptyList() : Collections.unmodifiableList(fields);
     }
 
     @Override
