@@ -69,7 +69,7 @@ public final class TMetaData {
         Method[] methods = ifaceClass.getMethods();
         List<TMethodDesc> methodDescs = new ArrayList<>(methods.length);
         for (Method method : methods) {
-            methodDescs.add(new TMethodDesc(method.getName(), this.parseMethodParameterTypes(method, classMap), this.parseMethodReturnType(method, classMap)));
+            methodDescs.add(new TMethodDesc(method.getName(), this.parseMethodTypes(method, classMap, "_args"), this.parseMethodTypes(method, classMap, "_result")));
         }
         metaData = new TServiceDesc(clazz, methodDescs);
         this.services.putIfAbsent(clazz, metaData);
@@ -77,13 +77,13 @@ public final class TMetaData {
     }
 
     /**
-     * 解析方法参数类型
+     * 解析方法(参数|返回)类型
      *
      * @param method
      * @param classMap
      * @return
      */
-    private List<TFieldDesc> parseMethodParameterTypes(Method method, Map<String, Class<?>> classMap) {
+    private List<TFieldDesc> parseMethodTypes(Method method, Map<String, Class<?>> classMap, String suffix) {
         if (method.getParameterCount() == 0) {
             return Collections.emptyList();
         }
@@ -96,37 +96,6 @@ public final class TMetaData {
             throw new IllegalStateException("'" + argsClass.getName() + "' is not assignable from '" + TBase.class.getName() + "'.");
         }
         return this.parseFieldMetaData((Class<? extends TBase>) argsClass);
-    }
-
-    /**
-     * 解析方法返回类型
-     *
-     * @param method
-     * @param classMap
-     * @return
-     */
-    private TDataTypeDesc parseMethodReturnType(Method method, Map<String, Class<?>> classMap) {
-        Class<?> returnType = method.getReturnType();
-        if (returnType == null || returnType == void.class) {
-            return null;
-        }
-        String resultClassName = method.getName().concat("_result");
-        Class<?> resultClass = classMap.get(resultClassName);
-        if (resultClass == null) {
-            throw new IllegalStateException("Invalid result class: " + method.toString());
-        }
-        if (!TBase.class.isAssignableFrom(resultClass)) {
-            throw new IllegalStateException("'" + resultClass.getName() + "' is not assignable from '" + TBase.class.getName() + "'.");
-        }
-
-        List<TFieldDesc> resultDescs = this.parseFieldMetaData((Class<? extends TBase>) resultClass);
-        if (resultDescs == null || resultDescs.isEmpty()) {
-            throw new IllegalStateException("Result field is nil, method: " + method);
-        }
-        if (resultDescs.size() > 1) {
-            throw new IllegalStateException("Result field is gt 1, classNamePrefix: " + method);
-        }
-        return resultDescs.get(0).getDataType();
     }
 
     private List<TFieldDesc> parseFieldMetaData(Class<? extends TBase> clazz) {

@@ -17,18 +17,45 @@ public class TMethodDesc {
 
     private final TDataTypeDesc result;
 
-    public TMethodDesc(String method, List<TFieldDesc> params, TDataTypeDesc result) {
+    private final TDataTypeDesc exception;
+
+    public TMethodDesc(String method, List<TFieldDesc> params, List<TFieldDesc> results) {
         this.method = method;
         this.params = (params == null || params.isEmpty()) ? Collections.emptyList() : Collections.unmodifiableList(params);
-        this.result = result;
+        TDataTypeDesc success = null;
+        TDataTypeDesc ex = null;
+        if (results != null && !results.isEmpty()) {
+            for (TFieldDesc desc : results) {
+                switch (desc.getName()) {
+                    case "success":
+                        success = desc.getDataType();
+                        break;
+                    case "ex":
+                        ex = desc.getDataType();
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+        this.result = success;
+        this.exception = ex;
     }
 
     @Override
     public String toString() {
         if (this.getResult() == null) {
-            return String.format("{\"method\":\"%s\",\"params\":%s}", this.getMethod(), this.getParams());
+            if (this.getException() == null) {
+                return String.format("{\"method\":\"%s\",\"params\":%s}", this.getMethod(), this.getParams());
+            } else {
+                return String.format("{\"method\":\"%s\",\"params\":%s,\"exception\":%s}", this.getMethod(), this.getParams(), this.getException());
+            }
         } else {
-            return String.format("{\"method\":\"%s\",\"params\":%s,\"result\":%s}", this.getMethod(), this.getParams(), this.getResult());
+            if (this.getException() == null) {
+                return String.format("{\"method\":\"%s\",\"params\":%s,\"result\":%s}", this.getMethod(), this.getParams(), this.getResult());
+            } else {
+                return String.format("{\"method\":\"%s\",\"params\":%s,\"result\":%s,\"exception\":%s}", this.getMethod(), this.getParams(), this.getResult(), this.getException());
+            }
         }
     }
 }
