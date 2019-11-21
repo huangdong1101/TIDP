@@ -147,7 +147,6 @@ public final class TMetaData {
             if (metaData.type == org.apache.thrift.protocol.TType.STRUCT) {
                 return this.parseStructMetaData(structClass, metaData.getTypedefName());
             } else if (metaData.type == org.apache.thrift.protocol.TType.ENUM) {
-                System.out.println(structClass.getPackage());
                 return this.parseEnumMetaData(structClass, metaData.getTypedefName());
             } else {
                 return new TDataTypeDesc(metaData);
